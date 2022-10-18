@@ -1,87 +1,80 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "main.h"
 
 /**
- * convert - convert an integer to base
- * 
- * @num: integer to convert
- * @base: converted base 8,10 and 16
- * @return char* 
+ * search_function - function to search formats for _printf
+ * @format: format (char, string, int, decimal) 
+ * Return: Null or function.
  */
-char *convert(unsigned int num, int base)
+
+int (*search_function(const char *format))(va_list)
 {
-    static char array[] = "0123456789ABCDEF";
-    static char buffer[50];
-    char *ptr;
-
-    ptr = &buffer[49];
-    *ptr = '\0';
-
-    do {
-        *--ptr = array[num % base];
-        num /= base;
-    } while (num != 0);
-    return (ptr);
+    unsigned int i = 0;
+    func_c search_f[] = {
+        {"c", print_char},
+        {"s", print_string},
+        {"i", print_int},
+        {"d", print_dec},
+        {"r", print_rev},
+        {"b", print_bin},
+        {"u", print_unsig},
+        {"o", print_octal},
+        {"x", print_x},
+        {"X", print_X},
+        {"R", print_rot13},
+        {NULL, NULL}
+    };
+    while (search_f[i].fs)
+    {
+        if (search_f[i].fs[0] == (*format))
+            return (search_f[i].f);
+        i++;
+    }
+    return NULL;
 }
 
 /**
- *_printf - function that produces output according to format
- * @format: The character string to pass
- * Return: Number of character printed
+ * _printf - function that produces output to a format
+ * @format: format(char, int, string, decimal)
+ * Return: size the output text.
  */
 
 int _printf(const char *format, ...)
 {
-    int i, j;
-    char *s;
-
     va_list arg;
+    int (*f)(va_list);
+    unsigned int i = 0, fprint = 0;
+
+    if (format == NULL)
+        return (-1);
     va_start(arg, format);
-
-    for (j = 0; format[j] != '\0'; j++)
+    while (format[i])
     {
-        while (format[j] != '%')
+        while (format[i] != '%' && format[i])
         {
-           if(format[j] == '\0')
-               return (j);
-           _putchar(format[j]);
-           j++;
+            _putchar(format[i]);
+            fprint++;
+            i++;
         }
-        j++;
-
-        switch (format[j])
+        if (format[i] == '\0')
+            return (fprint);
+        f = search_function(&format[i + 1]);
+        if (f != NULL)
         {
-        case 'c':
-            i = va_arg(arg, int);
-            _putchar(i);
-            break;
-        case 's':
-            s = va_arg(arg, char *);
-            puts(s);
-            break;
-        case '%':
-            i = va_arg(arg, int);
-            _putchar('%');
-            break;
-         case 'd':
-                i = va_arg(arg, int);
-                if (i < 0)
-                {
-                    i = -i;
-                    _putchar('-');
-                }
-                puts(convert(i, 10));
-                break;
-        case 'o':
-                i = va_arg(arg, unsigned int);
-                puts(convert(i, 8));
-                break;
-        case 'x':
-                i = va_arg(arg, unsigned int);
-                puts(convert(i, 16));
-        default:
-            break;
+            fprint += f(arg);
+            i += 2;
+            continue;
         }
+        if (!format[i + 1])
+            return (-1);
+        _putchar(format[i]);
+        fprint++;
+        if (format[i + 1] == '%')
+            i += 2;
+        else
+            i++;
     }
     va_end(arg);
-    return (j);
+    return (fprint);
 }
