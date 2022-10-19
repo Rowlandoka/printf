@@ -19,15 +19,15 @@ int print_rot13(va_list R);
 
 /**
  * struct func_code - Struct format
- * 
+ *
  * @fs: The specifiers
  * @f: associated function
  */
 
 typedef struct func_code
 {
-    char *fs;
-    int (*f)(va_list);
+char *fs;
+int (*f)(va_list);
 } func_c;
 
 #endif
