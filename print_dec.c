@@ -7,7 +7,7 @@
  * Return: size of the output text
  */
 
-int print_int(va_list d)
+int print_dec(va_list d)
 {
     int len, baseten, j, digit, n, count = 0, num;
 
